@@ -1,0 +1,25 @@
+# In this directory, run the following command to build this builder.
+# $ gcloud builds submit . --config=cloudbuild.yaml
+substitutions:
+  _TEST_CONTAINER_VERSION: 0.14.4
+
+timeout: '10800s' # 3 hours in seconds. Default: is 10 minutes
+queueTtl: '20s' # Use the queueTtl field to specify the amount of time a build can be queued.
+
+steps:
+- name: 'gcr.io/cloud-builders/docker'
+  env:
+  - '_TEST_CONTAINER_VERSION=${_TEST_CONTAINER_VERSION}'
+  args:
+  - build
+  - --build-arg
+  - VERSION=${_TEST_CONTAINER_VERSION}
+  - --tag
+  - gcr.io/${PROJECT_ID}/trace-tester:${_TEST_CONTAINER_VERSION}
+  - --tag
+  - gcr.io/${PROJECT_ID}/trace-tester:latest
+  - .
+images:
+  - 'gcr.io/${PROJECT_ID}/trace-tester:${_TEST_CONTAINER_VERSION}'
+  - 'gcr.io/${PROJECT_ID}/trace-tester:latest'
+tags: ['cloud-builders-community']
